@@ -23,5 +23,6 @@ urlpatterns = [
     path('',HomePage , name='Home'),
     path('skilledge/' , DashBoard , name="Dashboard"),
     path('auth/', include('Authentication.urls')),
+    path('performance/', include('Performance.urls')),
 ]
 
