@@ -1,279 +1,293 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkilEdge - Performance Management</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
+{% extends 'base.html' %}
 
-        body {
-            background-color: #ffffff;
-            min-height: 100vh;
-            color: #1a1a1a;
-            line-height: 1.5;
-        }
+{% block title %}SkilEdge - Performance Management{% endblock %}
 
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
+{% block content %}
+<div class="container">
+    <header class="header">
+        <h1>Performance Dashboard</h1>
+    </header>
 
-        .header {
-            margin-bottom: 40px;
-        }
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="widget">
+                <h2>Manage Data</h2>
+                <select id="semester-filter" onchange="filterSemester(this.value)">
+                    <option value="all">All Semesters</option>
+                    {% for semester in semesters %}
+                    <option value="{{ semester.id }}">{{ semester.name }}</option>
+                    {% endfor %}
+                </select>
 
-        h1 {
-            font-size: 32px;
-            font-weight: 600;
-            color: #1a1a1a;
-            text-align: center;
-        }
-
-        .semester-select {
-            margin-bottom: 30px;
-        }
-
-        .semester-select label {
-            display: block;
-            margin-bottom: 8px;
-            color: #4a4a4a;
-            font-size: 14px;
-        }
-
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 16px;
-            color: #1a1a1a;
-            background-color: #ffffff;
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-        }
-
-        select:focus {
-            outline: none;
-            border-color: #2563eb;
-        }
-
-        .forms-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
-            background-color: #f8f9fa;
-            padding: 24px;
-            border-radius: 8px;
-        }
-
-        .form-section {
-            background-color: #ffffff;
-            padding: 24px;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-section h2 {
-            font-size: 18px;
-            margin-bottom: 16px;
-            color: #1a1a1a;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #2563eb;
-        }
-
-        button {
-            background-color: #2563eb;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: #1d4ed8;
-        }
-
-        .table-container {
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th {
-            background-color: #f8f9fa;
-            color: #4a4a4a;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 16px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        td {
-            padding: 16px;
-            border-bottom: 1px solid #e0e0e0;
-            color: #1a1a1a;
-        }
-
-        .semester-row {
-            background-color: #f8f9fa;
-        }
-
-        .semester-row td {
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        tr:hover:not(.semester-row) {
-            background-color: #f8f9fa;
-        }
-
-        .percentage {
-            color: #2563eb;
-            font-weight: 500;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 20px auto;
-            }
-
-            th, td {
-                padding: 12px;
-            }
-
-            .forms-container {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header class="header">
-            <h1>Performance Management</h1>
-        </header>
-
-        <div class="semester-select">
-            <label for="semester-filter">Select Semester:</label>
-            <select id="semester-filter" onchange="filterSemester(this.value)">
-                <option value="all">All Semesters</option>
-                {% for semester in semesters %}
-                <option value="{{ semester.id }}">{{ semester.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="forms-container">
-            <div class="form-section">
-                <h2>Add Semester</h2>
-                <form method="post">
+                <form method="post" class="form">
                     {% csrf_token %}
-                    {{ semester_form.as_p }}
-                    <button type="submit" name="add_semester">Add Semester</button>
+                    <input type="text" name="name" placeholder="Semester Name" required>
+                    <button type="submit" name="add_semester" class="btn btn-primary">Add Semester</button>
                 </form>
-            </div>
 
-            <div class="form-section">
-                <h2>Add Subject</h2>
-                <form method="post">
+                <form method="post" class="form">
                     {% csrf_token %}
-                    {{ subject_form.as_p }}
+                    <input type="text" name="name" placeholder="Subject Name" required>
+                    <input type="number" name="obtained_marks" placeholder="Marks Obtained" required>
+                    <input type="number" name="max_marks" placeholder="Maximum Marks" required>
                     <select name="semester_id">
                         {% for semester in semesters %}
                         <option value="{{ semester.id }}">{{ semester.name }}</option>
                         {% endfor %}
                     </select>
-                    <button type="submit" name="add_subject">Add Subject</button>
+                    <button type="submit" name="add_subject" class="btn btn-primary">Add Subject</button>
                 </form>
             </div>
-        </div>
+        </aside>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Semester</th>
-                        <th>Subject</th>
-                        <th>Marks Obtained</th>
-                        <th>Maximum Marks</th>
-                        <th>Percentage</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for semester in semesters %}
-                        <tr class="semester-row" data-semester="{{ semester.id }}">
-                            <td colspan="5">{{ semester.name }}</td>
+        <main class="main-content">
+            <div class="table-responsive">
+                <table class="performance-table">
+                    <thead>
+                        <tr>
+                            <th>Semester</th>
+                            <th>Subject</th>
+                            <th>Marks</th>
+                            <th>Percentage</th>
+                            <th>Actions</th>
                         </tr>
-                        {% for subject in semester.subjects.all %}
-                        <tr data-semester="{{ semester.id }}">
-                            <td></td>
-                            <td>{{ subject.name }}</td>
-                            <td>{{ subject.obtained_marks }}</td>
-                            <td>{{ subject.max_marks }}</td>
-                            <td class="percentage">
-                                {% widthratio subject.obtained_marks subject.max_marks 100 %}%
-                            </td>
-                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for semester in semesters %}
+                            <tr class="semester-row" data-semester="{{ semester.id }}">
+                                <td colspan="5">{{ semester.name }}</td>
+                            </tr>
+                            {% for subject in semester.subjects.all %}
+                            <tr data-semester="{{ semester.id }}">
+                                <td></td>
+                                <td>{{ subject.name }}</td>
+                                <td>{{ subject.obtained_marks }} / {{ subject.max_marks }}</td>
+                                <td class="percentage">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: {% widthratio subject.obtained_marks subject.max_marks 100 %}%;"></div>
+                                    </div>
+                                    <span>{% widthratio subject.obtained_marks subject.max_marks 100 %}%</span>
+                                </td>
+                                <td>
+                                    <form action="{% url 'delete_subject' subject.id %}" method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" onclick="return confirm('Are you sure you want to delete this subject?')" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
                         {% endfor %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+        </main>
     </div>
+</div>
 
-    <script>
-        function filterSemester(semesterId) {
-            const rows = document.querySelectorAll('tr[data-semester]');
-            
-            rows.forEach(row => {
-                if (semesterId === 'all' || row.dataset.semester === semesterId) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+<style>
+    :root {
+        --primary-color: #3498db;
+        --secondary-color: #2ecc71;
+        --danger-color: #e74c3c;
+        --text-color: #333;
+        --bg-color: #f4f4f4;
+        --card-bg: #ffffff;
+    }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        background-color: var(--bg-color);
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .header {
+        background-color: var(--primary-color);
+        color: white;
+        text-align: center;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+        margin: 0;
+        font-size: 1.8rem;
+    }
+
+    .dashboard {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .sidebar {
+        flex: 1;
+        max-width: 300px;
+    }
+
+    .main-content {
+        flex: 3;
+    }
+
+    .widget {
+        background-color: var(--card-bg);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .widget h2 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        color: var(--primary-color);
+    }
+
+    .form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .form input,
+    .form select {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #c0392b;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .performance-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .performance-table th,
+    .performance-table td {
+        padding: 0.75rem;
+        text-align: left;
+    }
+
+    .performance-table th {
+        background-color: var(--primary-color);
+        color: white;
+        font-size: 0.9rem;
+    }
+
+    .performance-table tr {
+        background-color: var(--card-bg);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .semester-row {
+        background-color: var(--secondary-color) !important;
+        color: white;
+        font-weight: bold;
+    }
+
+    .progress-bar {
+        width: 100%;
+        background-color: #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress {
+        height: 16px;
+        background-color: var(--secondary-color);
+        transition: width 0.5s ease-in-out;
+    }
+
+    .percentage {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard {
+            flex-direction: column;
         }
-    </script>
-</body>
-</html>
+
+        .sidebar {
+            max-width: 100%;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.4rem 0.8rem;
+        }
+    }
+</style>
+
+<script>
+    function filterSemester(semesterId) {
+        const rows = document.querySelectorAll('tr[data-semester]');
+        
+        rows.forEach(row => {
+            if (semesterId === 'all' || row.dataset.semester === semesterId) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const percentages = document.querySelectorAll('.progress');
+        percentages.forEach(progress => {
+            progress.style.width = '0%';
+            setTimeout(() => {
+                progress.style.width = progress.style.width;
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}

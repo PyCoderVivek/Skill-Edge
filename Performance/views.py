@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from .models import Semester
+from django.shortcuts import render, redirect , get_object_or_404
+from .models import Semester , Subject
 from .forms import SemesterForm, SubjectForm
 
 def manage_performance(request):
@@ -53,3 +53,13 @@ def performance_dashboard(request):
     }
 
     return render(request, 'performance/performance.html', context)
+
+
+def delete_subject(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    
+    if request.method == "POST":
+        subject.delete()
+        return redirect('manage_performance')
+    
+    return render(request, 'add_performance_data.html', {'subject': subject})
