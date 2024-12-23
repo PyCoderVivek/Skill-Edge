@@ -12,12 +12,6 @@
         <aside class="sidebar">
             <div class="widget">
                 <h2>Manage Data</h2>
-                <select id="semester-filter" onchange="filterSemester(this.value)">
-                    <option value="all">All Semesters</option>
-                    {% for semester in semesters %}
-                    <option value="{{ semester.id }}">{{ semester.name }}</option>
-                    {% endfor %}
-                </select>
 
                 <form method="post" class="form">
                     {% csrf_token %}
@@ -42,6 +36,13 @@
 
         <main class="main-content">
             <div class="table-responsive">
+                <select id="semester-filter" onchange="filterSemester(this.value)">
+                    <option value="all">All Semesters</option>
+                    {% for semester in semesters %}
+                    <option value="{{ semester.id }}">{{ semester.name }}</option>
+                    {% endfor %}
+                </select>
+
                 <table class="performance-table">
                     <thead>
                         <tr>
@@ -196,7 +197,30 @@
     }
 
     .table-responsive {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
         overflow-x: auto;
+    }
+
+    #semester-filter {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        color: var(--text-color);
+        background-color: white;
+        transition: border-color 0.3s ease;
+    }
+
+    #semester-filter:hover {
+        border-color: var(--primary-color);
+    }
+
+    #semester-filter:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 4px rgba(52, 152, 219, 0.5);
     }
 
     .performance-table {

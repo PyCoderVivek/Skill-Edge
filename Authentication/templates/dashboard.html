@@ -8,7 +8,7 @@
 
 {% block content %}
 <!-- Add your dashboard content here -->
-<h1 class="greeting">{% block greeting %}Welcome back, Student!{% endblock %}</h1>
+<h1 class="greeting">{% block greeting %}Welcome back, Dear <i><b>{{user.username}}</b></i> !{% endblock %}</h1>
 {% endblock %}
 
 {% block extra_js %}
