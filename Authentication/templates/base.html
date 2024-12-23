@@ -136,7 +136,7 @@
         <main class="main-content">
                 <a href={% url "profile" %} class="logo-link">
                 <div class="user-info">
-                    <div class="user-avatar">{{user.username}}</div>
+                    <div class="user-avatar">{{user.username | slice:":1"}}</div>
                 </a>
                 </div>
             {% block content %}{% endblock %}
