@@ -24,5 +24,7 @@ urlpatterns = [
     path('skilledge/' , DashBoard , name="Dashboard"),
     path('auth/', include('Authentication.urls')),
     path('performance/', include('Performance.urls')),
+    path('recommendation/', include('Recommendation.urls')), 
+
 ]
 
